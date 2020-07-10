@@ -1,5 +1,6 @@
 package org.launchcode.javawebdevtechjobsauthentication.controllers;
 
+import org.launchcode.javawebdevtechjobsauthentication.models.DTO.LoginFormDTO;
 import org.launchcode.javawebdevtechjobsauthentication.models.DTO.RegistrationFormDTO;
 import org.launchcode.javawebdevtechjobsauthentication.models.User;
 import org.launchcode.javawebdevtechjobsauthentication.models.data.UserRepository;
@@ -65,12 +66,48 @@ public class AuthenticationController {
     }
 
 
-    //Login controller
-    @GetMapping
+    //Login view controller
+    @GetMapping("/login")
     public String displayLoginForm (Model model){
+        model.addAttribute(new LoginFormDTO());
         model.addAttribute("title", "Login");
         return "login";
     }
+
+    //Login form submission
+    @PostMapping("/login")
+    public String processLoginForm (@ModelAttribute @Valid LoginFormDTO loginFormDTO, Errors errors, Model model, HttpServletRequest session){
+        if (errors.hasErrors()){
+            model.addAttribute("title", "Login");
+            return "login";
+        }
+
+        User theUser = userRepository.findByUsername(loginFormDTO.getUsername());
+
+        if (theUser==null){
+            errors.rejectValue("username", "username.nouser", "There is no user under this name");
+            model.addAttribute("title", "Login");
+            return "login";
+        }
+
+        if (!theUser.isMatchingPassword(loginFormDTO.getPassword())){
+            errors.rejectValue("password", "password.incorrectPassword","The password provided does not match our records");
+            model.addAttribute("title", "Login");
+            return "login";
+        }
+
+        setUserInSession(session.getSession(), theUser);
+
+        return "redirect:";
+    }
+
+    //Logout session
+    @GetMapping("/logout")
+    public String logoutUser(HttpServletRequest request){
+        request.getSession().invalidate();
+        return "redirect:/login";
+    }
+
 
 
 
