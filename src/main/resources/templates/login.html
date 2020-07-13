@@ -17,7 +17,7 @@
 
     <div class="form-group">
         <label th:for="password">Password
-        <input class="form-control"
+        <input class="form-control" type="password"
                th:field="${loginFormDTO.password}"></label>
         <p th:errors="${loginFormDTO.password}"
            class="error"></p>
@@ -25,6 +25,9 @@
 
     <input type="submit" value="Login"/>
 </form>
-
+<p>Don't have an account yet?
+<a th:href="@{/register}"> Click here
+</a>
+</p>
 </body>
 </html>
